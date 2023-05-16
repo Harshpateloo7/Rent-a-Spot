@@ -12,7 +12,6 @@ const port = process.env.PORT || 3000;
 //     res.json({ message: 'Hello world!'})
 // })
 
-
 // Error handler
 const handleError = require('./utils/errorHandler');
 
@@ -22,8 +21,6 @@ app.use("*", (req, res) => {
     // error.status = 404;
     handleError(error, res);
 })
-
-
 
 app.listen(port, () => {
     console.log(`Running on http://localhost:${port}`)
