@@ -1,1 +1,1 @@
-# RentSpot
+# Rent a Spot
