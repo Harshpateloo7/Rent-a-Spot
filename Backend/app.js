@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const { connectDB } = require("./config/db.config");
+const userRouter = require("./controllers/user");
+const handleError = require('./utils/errorHandler');
+const { isLoggedIn } = require("./controllers/middleware");
 
 // Set body-parser
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -13,12 +16,13 @@ const port = process.env.PORT || 3000;
 connectDB();
 
 
-app.get('/', (req, res) => {
+app.get('/', isLoggedIn, async (req, res) => {
     res.json({ message: 'Hello world!'})
 })
 
+app.use("/user", userRouter)
+
 // Error handler
-const handleError = require('./utils/errorHandler');
 
 app.use((req, res, next) => {
     const error = new Error("Not Found")
