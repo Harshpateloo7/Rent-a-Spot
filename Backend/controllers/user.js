@@ -9,10 +9,12 @@ const userRouter = Router();
 
 const { SECRET_JWT_CODE = "jafha71yeiqquy1#@!" } = process.env;
 
+// Register new user
 userRouter.post("/register", async (req, res) => {
     try {
         let { name, email, password, type } = req.body
 
+        // Input validation
         const schema = Joi.object({
             name: Joi.string().required(),
             email: Joi.string()
@@ -45,6 +47,7 @@ userRouter.post("/register", async (req, res) => {
                 res.status(400).json({ error: "Email already in use" })
             }
             else {
+                // Password encryption
                 password = bcrypt.hashSync(password, 10);
                 const user = await User.create({ name, email, password, type });
                 res.json(user);
@@ -56,10 +59,12 @@ userRouter.post("/register", async (req, res) => {
     }
 });
 
+// Login existing user
 userRouter.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body
 
+        // Input validation
         const schema = Joi.object({
             email: Joi.string()
                 .min(8)
@@ -87,8 +92,10 @@ userRouter.post("/login", async (req, res) => {
         else {
             const user = await User.findOne({ email });
             if (user) {
+                // Check if password matches
                 const result = await bcrypt.compare(password, user.password);
                 if (result) {
+                    // Generating and sending JWT token for authorization
                     const token = await jwt.sign({ email: user.email }, SECRET_JWT_CODE);
                     res.json({ token });
                 } else {
@@ -103,6 +110,7 @@ userRouter.post("/login", async (req, res) => {
     }
 });
 
+// Reset password
 userRouter.post("/resetPassword/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -115,6 +123,7 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                 res.status(400).json({ error: "Provide correct user id" })
             }
             else {
+                // Input validation
                 const schema = Joi.object({
                     password: Joi.string()
                         .min(6)
@@ -135,6 +144,7 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                     res.status(400).json({ error: error.details[0].message });
                 }
                 else {
+                    // Encrypting password before updating user
                     user.password = bcrypt.hashSync(password, 10);;
                     user.save().then(user => {
                         res.json('Password updated successfully');
@@ -152,10 +162,12 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
     }
 });
 
+// Delete user
 userRouter.route('/delete/:id').delete(async (req, res) => {
     try {
         const { id } = req.params
 
+        // Validate id and delete user if exist
         if (Types.ObjectId.isValid(id)) {
             const user = await User.findByIdAndDelete({ _id: id })
 

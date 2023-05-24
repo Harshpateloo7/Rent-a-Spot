@@ -2,9 +2,13 @@ const jwt = require("jsonwebtoken");
 
 const isLoggedIn = async (req, res, next) => {
     try {
+        // Checking if authorization token is recieved
         if (req.headers.authorization) {
+            // Split bearer token
             const token = req.headers.authorization.split(" ")[1];
             if (token) {
+                // Verify JWT token
+                // If passed, proceed to api call
                 const payload = await jwt.verify(token, process.env.SECRET || "jafha71yeiqquy1#@!");
                 if (payload) {
                     req.user = payload;
