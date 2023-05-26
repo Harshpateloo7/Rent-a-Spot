@@ -22,8 +22,8 @@ app.get('/', isLoggedIn, async (req, res) => {
 
 app.use("/user", userRouter)
 
-
 // Error handler
+
 app.use((req, res, next) => {
     const error = new Error("Not Found")
     error.status = 404;
