@@ -5,6 +5,10 @@ const { connectDB } = require("./config/db.config");
 const userRouter = require("./controllers/user");
 const handleError = require('./utils/errorHandler');
 const { isLoggedIn } = require("./controllers/middleware");
+const parkingRouter = require("./controllers/parking");
+const paymentMethodRouter = require("./controllers/paymentMethod");
+const bookingRouter = require("./controllers/booking");
+const spaceRouter = require("./controllers/spaceRouter");
 
 // Set body-parser
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -21,7 +25,10 @@ app.get('/', isLoggedIn, async (req, res) => {
 })
 
 app.use("/user", userRouter)
-
+app.use("/parking", parkingRouter)
+app.use("/paymentMethod", paymentMethodRouter)
+app.use("/booking", bookingRouter)
+app.use("/space", spaceRouter)
 
 // Error handler
 app.use((req, res, next) => {
