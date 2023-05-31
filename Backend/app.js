@@ -31,6 +31,7 @@ app.use("/booking", bookingRouter)
 app.use("/space", spaceRouter)
 
 // Error handler
+
 app.use((req, res, next) => {
     const error = new Error("Not Found")
     error.status = 404;
