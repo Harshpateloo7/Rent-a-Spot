@@ -50,7 +50,7 @@ userRouter.post("/register", async (req, res) => {
                 // Password encryption
                 password = bcrypt.hashSync(password, 10);
                 const user = await User.create({ name, email, password, type });
-                res.json(user);
+                res.status(201).json(user);
             }
         }
     } catch (error) {
