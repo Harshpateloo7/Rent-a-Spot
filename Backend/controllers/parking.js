@@ -45,19 +45,6 @@ parkingRouter.get("/", async (req, res) => {
     }
 });
 
-
-// Get existing parking list
-parkingRouter.get("/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const parking = await Parking.findById({ _id: id });
-
-        res.json(parking);
-    } catch (error) {
-        res.status(400).json({ error });
-    }
-});
-
 // Reset password
 parkingRouter.put("/:id", async (req, res) => {
     try {
@@ -78,22 +65,21 @@ parkingRouter.put("/:id", async (req, res) => {
                     long: Joi.string().required(),
                     user_id: Joi.string().required(),
                 })
-
+                
                 let { name, address, city, lat, long, user_id } = parking;
-
                 user_id = user_id.toString()
                 const updatedParkingObj = { name, address, city, lat, long, user_id, ...req.body }
-
+                
                 const { error } = schema.validate(updatedParkingObj);
                 if (error) {
                     res.status(400).json({ error: error.details[0].message });
                 }
                 else {
                     const updatedParking = await parking.updateOne(updatedParkingObj)
-                    if (updatedParking) {
+                    if(updatedParking){
                         res.json({ message: 'Parking updated successfully' });
                     }
-                    else {
+                    else{
                         res.status(400).json({ error: 'Parking not updated' });
                     }
                 }

@@ -25,7 +25,7 @@ app.get('/', isLoggedIn, async (req, res) => {
 })
 
 app.use("/user", userRouter)
-app.use("/parking", isLoggedIn, parkingRouter)
+app.use("/parking", parkingRouter)
 app.use("/paymentMethod", paymentMethodRouter)
 app.use("/booking", bookingRouter)
 app.use("/space", spaceRouter)
