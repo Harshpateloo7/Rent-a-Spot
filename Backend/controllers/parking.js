@@ -37,7 +37,7 @@ parkingRouter.post("/", async (req, res) => {
 // Get existing parking list
 parkingRouter.get("/", async (req, res) => {
     try {
-        const parking = await Parking.find({});
+        const parking = await Parking.find({}).populate('user_id');
 
         res.json(parking);
     } catch (error) {

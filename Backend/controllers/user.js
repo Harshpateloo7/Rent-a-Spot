@@ -126,14 +126,14 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                 // Input validation
                 const schema = Joi.object({
                     password: Joi.string()
-                        .min(6)
+                        .min(8)
                         .required()
                         .max(20)
                         .regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,1024}$/)
                         .messages({
                             "string.base": `"password" should be a type of 'text'`,
                             "string.pattern.base": `"password" should have one uppercase, lowercase, digit and special character`,
-                            "string.min": `"password" should have min 6 characters`,
+                            "string.min": `"password" should have min 8 characters`,
                             "string.max": `"password" should have max 20 characters`,
                             "any.required": `"password" is a required field`
                         }),

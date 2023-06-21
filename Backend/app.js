@@ -9,12 +9,15 @@ const parkingRouter = require("./controllers/parking");
 const paymentMethodRouter = require("./controllers/paymentMethod");
 const bookingRouter = require("./controllers/booking");
 const spaceRouter = require("./controllers/spaceRouter");
+const cors = require('cors')
 
 // Set body-parser
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 const port = process.env.PORT || 3000;
+
+app.use(cors())
 
 // Connect Database
 connectDB();
