@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchParkings } from '../api/api'
 import { ParkingCard } from '../components'
 import './../css/parking.scss'
 
 const Parking = () => {
+    const navigate = useNavigate()
     const [parkings, setParkings] = useState()
 
     useEffect(() => {
@@ -15,34 +17,14 @@ const Parking = () => {
     const parkingCards = () => {
         return parkings && parkings.map((item, index) => (
             <div className='col-md-4' key={index}>
-                <ParkingCard parking={item} />
+                <ParkingCard parking={item} onClick={() => navigate('/space', { state: { parking: item } })} />
             </div>
         ))
     }
 
     return (
         <div className='container'>
-            <h1 className='mt-5'>Search Results</h1>
-            <div className='card p-4 mt-5'>
-                <div className='row g-3'>
-                    <div className='col-md-6'>
-                        <input type="text" placeholder='City' className='form-control' />
-                    </div>
-                    <div className='col-md-3'>
-                        <input type="text" placeholder='Price' className='form-control' />
-                    </div>
-                    <div className='col-md-3'>
-                        <button type='submit' className='form-control btn btn-primary'>
-                            Search
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search ms-2" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <h4 className='mt-5'>Showing {parkings?.length || '0'} results</h4>
+            <h1 className='mt-5'>Parkings</h1>
 
             <div className='row mt-2 g-5'>
                 {parkingCards()}

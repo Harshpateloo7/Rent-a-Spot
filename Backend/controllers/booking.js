@@ -8,20 +8,28 @@ const bookingRouter = Router();
 // Create new booking
 bookingRouter.post("/", async (req, res) => {
     try {
-        let { space_id, user_id } = req.body
+
+        let { vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id } = req.body
 
         // Input validation
         const schema = Joi.object({
+            vehicle_company: Joi.string().required(),
+            vehicle_model: Joi.string().required(),
+            plate_number: Joi.string().required(),
+            car_color: Joi.string().required(),
             space_id: Joi.string().required(),
             user_id: Joi.string().required(),
         })
 
-        const { error } = schema.validate({ space_id, user_id });
+        const { error } = schema.validate({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id });
         if (error) {
-            res.status(400).json({ error: error.details[0].message });
+            return res.status(400).json({ error: error.details[0].message });
+        }
+        else if (Booking.findOne({ space_id })) {
+            return res.status(400).json({ error: 'Space is already booked' });
         }
         else {
-            const booking = await Booking.create({ space_id, user_id });
+            const booking = await Booking.create({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id });
             res.json({ message: "Booking created", booking });
         }
     } catch (error) {
@@ -33,6 +41,12 @@ bookingRouter.post("/", async (req, res) => {
 // Get existing booking list
 bookingRouter.get("/", async (req, res) => {
     try {
+        const { user_id } = req.query;
+        if (user_id) {
+            const booking = await Booking.find({ user_id }).populate('space_id');
+
+            return res.json(booking);
+        }
         const booking = await Booking.find({});
 
         res.json(booking);

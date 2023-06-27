@@ -97,7 +97,7 @@ userRouter.post("/login", async (req, res) => {
                 if (result) {
                     // Generating and sending JWT token for authorization
                     const token = await jwt.sign({ email: user.email }, SECRET_JWT_CODE);
-                    res.json({ token });
+                    res.json({ user, token });
                 } else {
                     res.status(400).json({ error: "password doesn't match" });
                 }
@@ -145,7 +145,7 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                 }
                 else {
                     // Encrypting password before updating user
-                    user.password = bcrypt.hashSync(password, 10);;
+                    user.password = bcrypt.hashSync(password, 10);
                     user.save().then(user => {
                         res.json('Password updated successfully');
                     })

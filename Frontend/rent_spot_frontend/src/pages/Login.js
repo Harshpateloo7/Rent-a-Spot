@@ -1,27 +1,40 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../api/api'
+import { setUser } from '../reducers/userReducer'
 import './../css/auth.scss'
 
 const Login = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch();
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const handleLogin = () => {
-        console.log('email ', email);
-        console.log('password ', password);
+    const [error, setError] = useState()
 
-        if (login({ email, password })) {
-            navigate('/')
-        }
+    // Login API call with callback functions for handling response
+    const handleLogin = () => {
+        login({ email, password, handleLoginSuccess, handleLoginFailure })
+    }
+
+    const handleLoginSuccess = (data) => {
+        dispatch(setUser({ ...data?.user, token: data?.token }));
+        navigate('/')
+    }
+
+    const handleLoginFailure = (error) => {
+        setError(error)
     }
 
     return (
         <div className='container-fluid auth-container'>
             <div className='card login-card m-auto p-5'>
                 <h3 className='mb-4'>Sign in</h3>
+                {error && <div className="alert alert-danger" role="alert">
+                    {error}
+                </div>}
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email address</label>
                     <input type="email" className="form-control" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

@@ -1,11 +1,11 @@
 import React from 'react'
 import './styles.scss'
 
-const ParkingCard = ({parking}) => {
+const ParkingCard = ({ parking, onClick }) => {
     const { name, address, city, lat, long, user_id } = parking
 
     return (
-        <div className='card'>
+        <div className='card' onClick={onClick}>
             <div className='px-4 py-4'>
                 <h4>{name}</h4>
                 <span className='mt-5'>Address</span>

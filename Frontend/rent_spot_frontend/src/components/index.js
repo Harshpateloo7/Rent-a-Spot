@@ -1,3 +1,4 @@
 import ParkingCard from "./ParkingCard/ParkingCard";
+import SpaceCard from "./SpaceCard/SpaceCard";
 
-export { ParkingCard }
+export { ParkingCard, SpaceCard }

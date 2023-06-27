@@ -10,21 +10,32 @@ const Register = () => {
     const [type, setType] = useState('')
 
     const [isRegistered, setIsRegistered] = useState(false)
+    const [error, setError] = useState()
 
     const handleRegister = () => {
-        console.log('name ', name);
-        console.log('email ', email);
-        if (register({ name, email, password, type })) {
-            setIsRegistered(true)
-        }
+        setIsRegistered(false)
+        setError()
+        register({ name, email, password, type, handleRegisterSuccess, handleRegisterFailure })
+    }
+
+    const handleRegisterSuccess = () => {
+        setIsRegistered(true)
+    }
+
+    const handleRegisterFailure = (error) => {
+        
+        setError(error)
     }
 
     return (
         <div className='auth-container'>
             <div className='card login-card m-auto p-5'>
                 <h3 className='mb-4'>Sign up</h3>
-                {isRegistered && <div class="alert alert-success" role="alert">
+                {isRegistered && <div className="alert alert-success" role="alert">
                     Registration successful!
+                </div>}
+                {error && <div className="alert alert-danger" role="alert">
+                    {error}
                 </div>}
                 <div className="mb-3">
                     <label htmlFor="name" className="form-label">Name</label>
@@ -46,7 +57,9 @@ const Register = () => {
                         <option value="seeker">Seeker</option>
                     </select>
                 </div>
-
+                <div className='d-flex justify-content-between'>
+                    Are you a existing user?<Link to='/login'>Sign in</Link>
+                </div>
                 <button type="submit" className="btn btn-outline-primary mt-3" onClick={() => handleRegister()}>Submit</button>
             </div>
         </div>
