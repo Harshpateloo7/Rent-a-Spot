@@ -1,1 +1,0 @@
-# Rent a Spot
