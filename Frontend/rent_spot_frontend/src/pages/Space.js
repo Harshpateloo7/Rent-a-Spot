@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { fetchSpaces } from '../api/api'
-import { SpaceCard } from '../components'
+import { deleteSpace, fetchSpaces } from '../api/api'
+import { DeleteModal, SpaceCard } from '../components'
 
 import './../css/parking.scss'
 
 const Space = () => {
+    const user = useSelector((state) => state.user);
     const navigate = useNavigate();
     const { state } = useLocation();
     const [spaces, setSpaces] = useState()
@@ -20,14 +22,28 @@ const Space = () => {
         availability: false
     })
 
+    // Delete management states
+    const [selectedSpace, setSelectedSpace] = useState()
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+
     useEffect(() => {
         console.log('state ', state);
         // Space List API sets spaces state using setSpaces passed as callback function
-        if (state?.parking?._id) {
-            fetchSpaces({ parking_id: state?.parking?._id, setSpaces })
+        if (user?.type === 'owner') {
+            if (state?.parking?._id) {
+                fetchSpaces({ user_id: user?._id, parking_id: state?.parking?._id, setSpaces })
+            }
+            else {
+                fetchSpaces({ user_id: user?._id, setSpaces })
+            }
         }
-        else{
-            fetchSpaces({ setSpaces })
+        else {
+            if (state?.parking?._id) {
+                fetchSpaces({ parking_id: state?.parking?._id, setSpaces })
+            }
+            else {
+                fetchSpaces({ setSpaces })
+            }
         }
     }, [state])
 
@@ -35,7 +51,11 @@ const Space = () => {
     const spaceCards = () => {
         return spaces && spaces.map((item, index) => (
             <div className='col-md-4' key={index}>
-                <SpaceCard space={item} onBooking={() => navigate('/bookingForm', { state: { space: item } })} />
+                <SpaceCard
+                    space={item}
+                    onBooking={() => navigate('/bookingForm', { state: { space: item } })}
+                    setSelectedSpace={setSelectedSpace}
+                    setShowDeleteModal={setShowDeleteModal} />
             </div>
         ))
     }
@@ -46,13 +66,53 @@ const Space = () => {
 
     const handleSearch = () => {
         setSpaces([])
-        if (state?.parking?._id) {
-            fetchSpaces({ parking_id: state?.parking?._id, ...searchForm, setSpaces })
+        if (user?.type === 'owner') {
+            if (state?.parking?._id) {
+                fetchSpaces({ user_id: user?._id, parking_id: state?.parking?._id, setSpaces, ...searchForm })
+            }
+            else {
+                fetchSpaces({ user_id: user?._id, setSpaces, ...searchForm })
+            }
         }
-        else{
-            fetchSpaces({ ...searchForm, setSpaces })
+        else {
+            if (state?.parking?._id) {
+                fetchSpaces({ parking_id: state?.parking?._id, setSpaces, ...searchForm })
+            }
+            else {
+                fetchSpaces({ setSpaces, ...searchForm })
+            }
         }
     }
+
+    // Used to delete parking
+    const handleDeleteSpace = () => {
+        deleteSpace({ id: selectedSpace?._id, handleDeleteSpaceSuccess, handleDeleteSpaceFailure })
+    }
+
+    const handleDeleteSpaceSuccess = () => {
+        if (user?.type === 'owner') {
+            if (state?.parking?._id) {
+                fetchSpaces({ user_id: user?._id, parking_id: state?.parking?._id, setSpaces })
+            }
+            else {
+                fetchSpaces({ user_id: user?._id, setSpaces })
+            }
+        }
+        else {
+            if (state?.parking?._id) {
+                fetchSpaces({ parking_id: state?.parking?._id, setSpaces })
+            }
+            else {
+                fetchSpaces({ setSpaces })
+            }
+        }
+        setShowDeleteModal(false)
+    }
+
+    const handleDeleteSpaceFailure = () => {
+        setShowDeleteModal(false)
+    }
+
 
 
     return (
@@ -97,6 +157,8 @@ const Space = () => {
             <div className='row mt-2 g-5'>
                 {spaceCards()}
             </div>
+
+            <DeleteModal value={selectedSpace?.name} showModal={showDeleteModal} setShowModal={setShowDeleteModal} onDeleteConfirm={handleDeleteSpace} />
         </div>
     )
 }

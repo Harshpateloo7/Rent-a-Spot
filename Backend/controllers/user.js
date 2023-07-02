@@ -59,6 +59,20 @@ userRouter.post("/register", async (req, res) => {
     }
 });
 
+
+// Get user list
+userRouter.get("/", async (req, res) => {
+    try {
+        const users = await User.find({});
+
+        res.json(users);
+    } catch (error) {
+        console.error('error ', error);
+        res.status(400).json({ error });
+    }
+});
+
+
 // Login existing user
 userRouter.post("/login", async (req, res) => {
     try {
@@ -117,6 +131,7 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
         const { password } = req.body
 
         console.log('id - ', id);
+        console.log('password ', password);
         if (Types.ObjectId.isValid(id)) {
             const user = await User.findById({ _id: id })
             if (!user) {
@@ -126,8 +141,8 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                 // Input validation
                 const schema = Joi.object({
                     password: Joi.string()
-                        .min(8)
                         .required()
+                        .min(8)
                         .max(20)
                         .regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,1024}$/)
                         .messages({
@@ -145,9 +160,51 @@ userRouter.post("/resetPassword/:id", async (req, res) => {
                 }
                 else {
                     // Encrypting password before updating user
-                    user.password = bcrypt.hashSync(password, 10);
+                    if (password) {
+                        user.password = bcrypt.hashSync(password, 10);
+                    }
                     user.save().then(user => {
-                        res.json('Password updated successfully');
+                        res.json({ user, message: 'Password updated successfully' });
+                    })
+                }
+            }
+        }
+        else {
+            res.status(400).json({ error: "Invalid id" })
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error });
+    }
+});
+
+
+// Update user
+userRouter.put("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { cash, interac, } = req.body
+
+        console.log('id - ', id);
+        if (Types.ObjectId.isValid(id)) {
+            const user = await User.findById({ _id: id })
+            if (!user) {
+                res.status(400).json({ error: "Provide correct user id" })
+            }
+            else {
+                if (typeof cash !== "boolean" && !interac) {
+                    res.status(400).json({ error: 'Must provide cash or interac' });
+                }
+                else {
+                    if (typeof cash === "boolean") {
+                        user.cash = cash
+                    }
+                    if (interac) {
+                        user.interac = interac
+                    }
+                    user.save().then(user => {
+                        res.json({ user, message: 'Password updated successfully' });
                     })
                 }
             }

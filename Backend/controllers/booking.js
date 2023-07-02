@@ -9,7 +9,7 @@ const bookingRouter = Router();
 bookingRouter.post("/", async (req, res) => {
     try {
 
-        let { vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id } = req.body
+        let { vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id, confirm_booking = "pending" } = req.body
 
         // Input validation
         const schema = Joi.object({
@@ -19,17 +19,19 @@ bookingRouter.post("/", async (req, res) => {
             car_color: Joi.string().required(),
             space_id: Joi.string().required(),
             user_id: Joi.string().required(),
+            confirm_booking: Joi.string().valid("approved", "pending", "rejected"),
         })
 
-        const { error } = schema.validate({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id });
+        const { error } = schema.validate({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id, confirm_booking });
         if (error) {
             return res.status(400).json({ error: error.details[0].message });
         }
-        else if (Booking.findOne({ space_id })) {
+        const existsBooking = await Booking.findOne({ user_id, space_id });
+        if (existsBooking) {
             return res.status(400).json({ error: 'Space is already booked' });
         }
         else {
-            const booking = await Booking.create({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id });
+            const booking = await Booking.create({ vehicle_company, vehicle_model, plate_number, car_color, space_id, user_id, confirm_booking });
             res.json({ message: "Booking created", booking });
         }
     } catch (error) {
@@ -41,13 +43,16 @@ bookingRouter.post("/", async (req, res) => {
 // Get existing booking list
 bookingRouter.get("/", async (req, res) => {
     try {
-        const { user_id } = req.query;
+        const { user_id, owner_id } = req.query;
         if (user_id) {
-            const booking = await Booking.find({ user_id }).populate('space_id');
+            const booking = await Booking.find({ user_id }).populate({ path: 'space_id', populate: { path: 'parking_id' } });
 
             return res.json(booking);
         }
-        const booking = await Booking.find({});
+        let booking = await Booking.find({}).populate({ path: 'space_id', populate: { path: 'parking_id' } });
+        if (owner_id) {
+            booking = booking.filter((item) => item?.space_id?.parking_id?.user_id.equals(owner_id))
+        }
 
         res.json(booking);
     } catch (error) {
@@ -55,10 +60,11 @@ bookingRouter.get("/", async (req, res) => {
     }
 });
 
-// Reset password
+// Update booking
 bookingRouter.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
+        const { confirm_booking } = req.body;
 
         if (Types.ObjectId.isValid(id)) {
             const booking = await Booking.findById({ _id: id })
@@ -70,19 +76,26 @@ bookingRouter.put("/:id", async (req, res) => {
                 const schema = Joi.object({
                     space_id: Joi.string().required(),
                     user_id: Joi.string().required(),
+                    confirm_booking: Joi.string().valid("approved", "pending", "rejected"),
                 })
 
                 let { space_id, user_id } = booking;
                 space_id = space_id.toString()
                 user_id = user_id.toString()
-                const updatedBookingObj = { space_id, user_id, ...req.body }
+                const updatedBookingObj = { space_id, user_id, ...req.body, confirm_booking }
 
                 const { error } = schema.validate(updatedBookingObj);
                 if (error) {
                     res.status(400).json({ error: error.details[0].message });
                 }
                 else {
+                    console.log('updatedBookingObj ', updatedBookingObj);
+                    if(updatedBookingObj?.confirm_booking === 'approved'){
+                        await Booking.updateMany({ space_id }, { $set: { confirm_booking: 'rejected' } });
+                    }
                     const updatedBooking = await booking.updateOne(updatedBookingObj)
+
+
                     if (updatedBooking) {
                         res.json({ message: 'Booking updated successfully' });
                     }

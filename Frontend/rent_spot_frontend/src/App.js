@@ -9,6 +9,9 @@ import SpaceForm from './pages/SpaceForm';
 import BookingForm from './pages/BookingForm';
 import Booking from './pages/Booking';
 import Profile from './pages/Profile';
+import Reviews from './pages/Reviews';
+import Users from './pages/Users';
+import About from './pages/About';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
           <Route path="bookingForm" element={<BookingForm />} />
           <Route path="booking" element={<Booking />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="review" element={<Reviews />} />
+          <Route path="users" element={<Users />} />
+          <Route path="about" element={<About />} />
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />

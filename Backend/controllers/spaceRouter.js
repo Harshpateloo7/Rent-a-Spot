@@ -2,8 +2,8 @@ const { Router } = require("express")
 const Space = require("../models/spaceSchema");
 const Joi = require('joi');
 const { Types } = require("mongoose");
-const bookingSchema = require("../models/bookingSchema");
-
+const Booking = require("../models/bookingSchema");
+const Parking = require("../models/parkingSchema");
 const spaceRouter = Router();
 
 // Create new space
@@ -38,63 +38,79 @@ spaceRouter.post("/", async (req, res) => {
 // Get existing space list
 spaceRouter.get("/", async (req, res) => {
     try {
-        // const { filters  } = req.params
-        // console.log('filters ', filters);
-        const { parking_id, date, city, time, availability } = req.query;
+        const { user_id, parking_id, date, city, time, availability } = req.query;
 
-        // Build the query object based on provided filters
-        const query = {};
+        console.log('req.query ', req.query);
 
+        let query = {};
+
+        // Filter by parking_id: Spaces available at specified parking_id
         if (parking_id) {
-            // Filter by parking_id: Spaces available at specified parking_id
-            query.parking_id = { $eq: parking_id };
+            query.parking_id = parking_id;
         }
 
-        if (date) {
-            // Filter by date: Spaces available on the specified date
-            query.date = { $eq: new Date(date) };
-        }
-
-        // // Filter by city
-        // if (city) {
-        //     query['parking_id.city'] = { $regex: new RegExp(city, 'i') };
+        // if (user_id) {
+        //     query.parking_id = { ...query.parking_id, user_id: new Types.ObjectId(user_id) };
         // }
 
-        // Filter by time: Spaces available from start time
-        console.log('time ', time);
-        if (time) {
-            query.slot_start_time = { $eq: time };
-        }
-        console.log('city ', city);
-        console.log('query ', query);
-        // Fetch all booked space IDs
-        const bookings = await bookingSchema.find().select('space_id').exec();
-        const bookedSpaceIds = bookings.map(booking => booking.space_id.toString());
+        // if (city) {
+        //     query.parking_id = { ...query.parking_id, city: city };
+        // }
 
-        // Fetch parking spaces
+
+        // Filter by date: Spaces available on the specified date
+        if (date) {
+            query.date = new Date(date);
+        }
+
+        // Filter by time: Spaces available from start time
+        if (time) {
+            query.slot_start_time = time;
+        }
+
+        // Fetch all booked space IDs
+        const bookings = await Booking.find();
+        // const bookedSpaceIds = bookings.map(booking => booking.space_id.toString() = booking?.confirm_booking);
+        const bookedSpaces = new Set();
+        bookings.forEach(booking => {
+            if (booking.confirm_booking === 'approved') {
+                bookedSpaces.add(booking.space_id.toString());
+            }
+        });
+
+        console.log('query >>> ', query);
+
         let spaces;
-        if (city) {
-            spaces = await Space.find(query)
-            .where('parking_id.city').regex(new RegExp(city, 'i'))
-            .exec();          
-        }
-        else {
-            spaces = await Space.find(query).populate('parking_id').exec();
-        }
+
+        // if (city) {
+        //     // Filter spaces by city (case-insensitive substring match)
+        //     spaces = await Space.find({ ...query, 'parking_id.city': { $regex: new RegExp(city, 'i') } }).populate('parking_id');
+        // } else {
+        // Fetch parking spaces without city filter
+        spaces = await Space.find(query).populate('parking_id');
+        // }
 
         // Filter spaces by availability if the 'availability' filter is provided
-        console.log('availability ', availability);
+        console.log('availability', availability);
+
         if (availability) {
-            spaces = spaces.filter(space => !bookedSpaceIds.includes(space._id.toString()));
+            // spaces = spaces.filter(space => !bookedSpaceIds.includes(space._id.toString()));
+            spaces = spaces.filter(space => !bookedSpaces.has(space._id.toString()));
+        }
+
+        if (user_id) {
+            spaces = spaces.filter((item) => item?.parking_id?.user_id.equals(user_id));
         }
 
         // Add an 'is_booked' flag to each space
         const spacesWithBookedFlag = spaces.map(space => {
-            const isBooked = bookedSpaceIds.includes(space._id.toString());
-            return { ...space._doc, is_booked: isBooked };
+            // const isBooked = bookedSpaceIds.includes(space._id.toString());
+            const isBooked = bookedSpaces.has(space._id.toString());
+            return { ...space.toJSON(), is_booked: isBooked };
         });
 
-        // return spaces;
+        console.log('spacesWithBookedFlag ', spacesWithBookedFlag);
+        // Return the spaces with the 'is_booked' flag
         return res.json(spacesWithBookedFlag);
     } catch (error) {
         console.error('error ', error);
@@ -102,7 +118,7 @@ spaceRouter.get("/", async (req, res) => {
     }
 });
 
-// Reset password
+// Update space
 spaceRouter.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;

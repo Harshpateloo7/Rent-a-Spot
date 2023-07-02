@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
-import { createSpace, fetchParkings, fetchSpaces } from '../api/api'
+import { useLocation } from 'react-router-dom';
+import { createSpace, fetchParkings, updateSpace } from '../api/api'
 import './../css/createParking.scss'
 
 const SpaceForm = () => {
+    const { state } = useLocation()
     const user = useSelector((state) => state.user);
 
     // Create a form object for storing values
@@ -16,7 +18,7 @@ const SpaceForm = () => {
         parking_id: '',
     })
 
-    const [isCreated, setIsCreated] = useState(false)
+    const [successMessage, setSuccessMessage] = useState()
     const [error, setError] = useState()
 
     const time = ['12:00am', '2:00am', '4:00am', '6:00am', '8:00am', '10:00am',
@@ -28,7 +30,7 @@ const SpaceForm = () => {
     }
 
     const handleCreateSpace = () => {
-        setIsCreated(false)
+        setSuccessMessage()
         setError()
 
         const body = { ...form, user_id: user?._id }
@@ -36,28 +38,63 @@ const SpaceForm = () => {
     }
 
     const handleCreateSpaceSuccess = (data) => {
-        setIsCreated(true)
+        setSuccessMessage('Created successfully!')
     }
 
     const handleCreateSpaceFailure = (error) => {
         setError(error)
     }
 
-    const [spaces, setSpaces] = useState()
+    const [parkings, setParkings] = useState()
 
     useEffect(() => {
-        // Space List API sets spaces state using setSpaces passed as callback function
-        fetchSpaces({ setSpaces })
+        // Space List API sets parkings state using setParkings passed as callback function
+        fetchParkings({ user_id: user?._id, setParkings })
     }, [])
 
+    // Edit space API
+    const handleUpdateSpace = () => {
+        setSuccessMessage()
+        setError()
 
+        const body = { ...form }
+        updateSpace({ id: state?.space?._id, body, handleUpdateSpaceSuccess, handleUpdateSpaceFailure })
+    }
+
+    const handleUpdateSpaceSuccess = (data) => {
+        setSuccessMessage('Updated successfully!')
+    }
+
+    const handleUpdateSpaceFailure = (error) => {
+        setError(error)
+    }
+
+    const handleSubmit = () => {
+        if (state?.space) {
+            handleUpdateSpace()
+        }
+        else {
+            handleCreateSpace()
+        }
+    }
+
+    useEffect(() => {
+        setForm({
+            name: state?.space?.name,
+            date: state?.space?.date,
+            slot_start_time: state?.space?.slot_start_time,
+            slot_end_time: state?.space?.slot_end_time,
+            price: state?.space?.price,
+            parking_id: state?.space?.parking_id,
+        })
+    }, [state])
 
     return (
         <div className='container py-5'>
             <div className='card create-parking-card p-5'>
                 <h3 className='mb-4'>Create space</h3>
-                {isCreated && <div className="alert alert-success" role="alert">
-                    Created successfully!
+                {successMessage && <div className="alert alert-success" role="alert">
+                    {successMessage}
                 </div>}
                 {error && <div className="alert alert-danger" role="alert">
                     {error}
@@ -97,12 +134,12 @@ const SpaceForm = () => {
                     <label htmlFor="parking" className="form-label">Parking</label>
                     <select className="form-select" value={form?.parking_id} onChange={(e) => handleFormChange({ key: 'parking_id', value: e.target.value })} >
                         <option value="">Select</option>
-                        {spaces?.map((item) => (
+                        {parkings?.map((item) => (
                             <option value={item?._id}>{item?.name}</option>
                         ))}
                     </select>
                 </div>
-                <button type="submit" className="btn btn-primary mt-4" onClick={handleCreateSpace}>Submit</button>
+                <button type="submit" className="btn btn-primary mt-4" onClick={handleSubmit}>Submit</button>
             </div>
         </div>
     )

@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
@@ -7,6 +8,7 @@ import './../css/createParking.scss'
 const BookingForm = () => {
     const { state } = useLocation();
     const user = useSelector((state) => state.user);
+    const [space, setSpace] = useState('');
 
     // Create a form object for storing values
     const [form, setForm] = useState({
@@ -47,8 +49,12 @@ const BookingForm = () => {
         // Space List API sets spaces state using setSpaces passed as callback function
         fetchSpaces({ setSpaces })
 
+        setSpace(state?.space)
+
         handleFormChange({ key: 'space_id', value: state?.space?._id })
     }, [state])
+
+    console.log('space ', space);
 
     return (
         <div className='container py-5'>
@@ -84,6 +90,15 @@ const BookingForm = () => {
                             <option value={item?._id}>{item?.name}</option>
                         ))}
                     </select>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="space" className="form-label">Space details</label>
+                    <p><strong>Date: </strong>{moment.utc(space?.date).format('DD-MM-YYYY')}</p>
+                    <p><strong>Start time: </strong>{space?.slot_start_time}</p>
+                    <p><strong>End time: </strong>{space?.slot_end_time}</p>
+                    <p><strong>Price: </strong>{space?.price}</p>
+                    <p><strong>Address: </strong>{space?.parking_id?.address}</p>
+                    <p><strong>City: </strong>{space?.parking_id?.city}</p>
                 </div>
                 <button type="submit" className="btn btn-primary mt-4" onClick={handleCreateBooking}>Submit</button>
             </div>

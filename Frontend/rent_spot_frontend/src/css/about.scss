@@ -1,0 +1,17 @@
+.overlay {
+    background: rgba(0, 0, 0, .8);
+    padding: 30px;
+
+    h1 {
+        color: #fff;
+        
+        span {
+            font-weight: lighter;
+        }
+    }
+}
+.services-img{
+    height: 300px;
+    width: 100%;
+    object-fit: cover;
+}

@@ -17,10 +17,15 @@ const bookingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    confirm_booking: {
+        type: String,
+        required: true,
+        enum: ["approved", "rejected", "pending"],
+        default: "pending"
+    },
     space_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Space',
-        unique: true 
     },
     user_id: {
         type: mongoose.Schema.Types.ObjectId,

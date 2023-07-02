@@ -9,7 +9,8 @@ const parkingRouter = require("./controllers/parking");
 const paymentMethodRouter = require("./controllers/paymentMethod");
 const bookingRouter = require("./controllers/booking");
 const spaceRouter = require("./controllers/spaceRouter");
-const cors = require('cors')
+const cors = require('cors');
+const reviewRouter = require("./controllers/review");
 
 // Set body-parser
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -32,6 +33,7 @@ app.use("/parking", parkingRouter)
 app.use("/paymentMethod", paymentMethodRouter)
 app.use("/booking", bookingRouter)
 app.use("/space", spaceRouter)
+app.use("/review", reviewRouter)
 
 // Error handler
 

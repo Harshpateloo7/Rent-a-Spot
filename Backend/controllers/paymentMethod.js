@@ -40,7 +40,7 @@ paymentMethodRouter.get("/", async (req, res) => {
     }
 });
 
-// Reset password
+// Update payment method
 paymentMethodRouter.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;

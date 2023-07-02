@@ -19,6 +19,15 @@ const userSchema = new mongoose.Schema({
         enum: ["admin", "seeker", "owner"],
         required: true
     },
+    cash: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    interac: {
+        type: String,
+        default: ''
+    }
 })
 
 module.exports = mongoose.model("User", userSchema)

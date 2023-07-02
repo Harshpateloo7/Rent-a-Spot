@@ -2,6 +2,7 @@ const { Router } = require("express")
 const Parking = require("../models/parkingSchema");
 const Joi = require('joi');
 const { Types } = require("mongoose");
+const Review = require("../models/reviewSchema");
 
 const parkingRouter = Router();
 
@@ -37,15 +38,43 @@ parkingRouter.post("/", async (req, res) => {
 // Get existing parking list
 parkingRouter.get("/", async (req, res) => {
     try {
-        const parking = await Parking.find({}).populate('user_id');
+        const { user_id } = req.query;
+        let parking;
+        if (user_id) {
+            parking = await Parking.find({ user_id }).populate('user_id');
+        }
+        else {
+            parking = await Parking.find({}).populate('user_id');
+        }
 
-        res.json(parking);
+        const reviews = await Review.find()
+
+        const parkingWithOwnerRatings = parking.map((item) => {
+            let rating = 0;
+            let count = 0;
+            const userReviews = reviews.filter((review) => {
+             console.log('review ', review);
+             console.log('item?.user_id ', item?.user_id);
+             return   review.owner_id.equals(item?.user_id?._id)
+            })
+            console.log('userReviews ', userReviews);
+            userReviews.forEach((review) => {
+                rating += review?.rating;
+                count++;
+            })
+            owner_rating = rating > 0 ? (rating / count) : 0;
+
+            return { ...item.toObject(), owner_rating };
+        })
+       
+        res.json(parkingWithOwnerRatings);
     } catch (error) {
+        console.error('error ', error);
         res.status(400).json({ error });
     }
 });
 
-// Reset password
+// Update parking
 parkingRouter.put("/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -65,21 +94,21 @@ parkingRouter.put("/:id", async (req, res) => {
                     long: Joi.string().required(),
                     user_id: Joi.string().required(),
                 })
-                
+
                 let { name, address, city, lat, long, user_id } = parking;
                 user_id = user_id.toString()
                 const updatedParkingObj = { name, address, city, lat, long, user_id, ...req.body }
-                
+
                 const { error } = schema.validate(updatedParkingObj);
                 if (error) {
                     res.status(400).json({ error: error.details[0].message });
                 }
                 else {
                     const updatedParking = await parking.updateOne(updatedParkingObj)
-                    if(updatedParking){
+                    if (updatedParking) {
                         res.json({ message: 'Parking updated successfully' });
                     }
-                    else{
+                    else {
                         res.status(400).json({ error: 'Parking not updated' });
                     }
                 }
