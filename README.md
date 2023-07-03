@@ -19,7 +19,9 @@ and their profiles. Addi+onality, the admin can block any users and delete any u
 ## Technologies: 
 - Node.js,
 - Express,
+- JavaScript,
 - React,
+- CSS
 - Bootstrap,
 - SCSS,
 - MongoDB
