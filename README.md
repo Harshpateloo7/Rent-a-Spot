@@ -8,12 +8,18 @@ with availability schedules, locations, and prices. Users looking for parking sp
 search and book them based on availability. Also, the admin will be managing both users' accounts
 and their profiles. Addi+onality, the admin can block any users and delete any users.
 ## Features List:
-● User Registra+on and login
-● Profile Management
-● Parking spot lis+ng
-● Parking spot Management
-● Booking and reserve
-● User review and Ra+ng
-● Search and Filter Func+onality
-● Admin can block, edit, and delete users.
-## Technologies: Node.js, Express, React, Bootstrap, SCSS, and MongoDB
+- User Registration and login
+- Profile Management
+- Parking spot listing
+- Parking spot Management
+- Booking and reserve
+- User Review and Rating
+- Search and Filter Functionality
+- Admin can block, edit, and delete users.
+## Technologies: 
+- Node.js,
+- Express,
+- React,
+- Bootstrap,
+- SCSS,
+- MongoDB
