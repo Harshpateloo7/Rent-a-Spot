@@ -1,0 +1,21 @@
+.card,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+h4 {
+    font-weight: 300;
+}
+
+span {
+    font-weight: bold;
+}
+
+.posted-by {
+    background-color: #6a93cb;
+    background-image: linear-gradient(315deg, #a4bfef 0%, #6a93cb 74%);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: #fff;
+}
