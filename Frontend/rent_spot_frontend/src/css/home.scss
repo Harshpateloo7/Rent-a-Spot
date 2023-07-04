@@ -14,9 +14,40 @@
 
     h1 {
         color: #fff;
-        
+
         span {
             font-weight: lighter;
         }
+    }
+}
+
+
+.services-card-icon {
+    height: 230px;
+    object-fit: contain;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.testimonial-card {
+    margin-top: 60px;
+    background-color: #000;
+    
+
+    img {
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 10px;
+        margin-top: -50px;
+    }
+
+    span {
+        font-weight: lighter;
+    }
+
+    strong {
+        font-size: 20px;
     }
 }

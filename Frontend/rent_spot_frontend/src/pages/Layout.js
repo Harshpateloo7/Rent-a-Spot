@@ -22,10 +22,10 @@ const Layout = () => {
     }, [user, location])
 
     return (
-        <>
+        <div className="main-container">
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container">
-                    <a className="navbar-brand" href="#">Rent-a-spot</a>
+                    <a className="navbar-brand" href="#">Rent a spot</a>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
@@ -82,12 +82,14 @@ const Layout = () => {
                 </div>
             </nav>
 
-            <Outlet />
+            <main>
+                <Outlet />
+            </main>
 
             <footer className="container-fluid p-5 mt-5">
                 <div className="row">
                     <div className="col-md-4">
-                        <p>Copyright &copy; 2023</p>
+                        <p>Copyright &copy; 2023 by Harshadkumar Patel</p>
                     </div>
                     <div className="col-md-4">
                     </div>
@@ -115,7 +117,7 @@ const Layout = () => {
                     </div>
                 </div>
             </footer>
-        </>
+        </div>
     )
 };
 
