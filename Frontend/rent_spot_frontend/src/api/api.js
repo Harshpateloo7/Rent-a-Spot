@@ -1,5 +1,5 @@
 import axios from 'axios'
-const BASE_URL = "https://rentaspotadmin.onrender.com"
+const BASE_URL = "https://rentaspotadmin.onrender.com/"
 
 export const fetchParkings = async ({ user_id, setParkings }) => {
     try {
